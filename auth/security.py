@@ -1,8 +1,8 @@
 import hashlib
 import json
+import jwt
 
-# header = {"alg": "HS256", "typ": "JWT"}
-# secret_key = "thisissecretkey"
+key = "This is secret key"
 
 
 class CustomSecurity:
@@ -29,6 +29,18 @@ class CustomSecurity:
             all_data_one_user = all_data_about_users[login]
 
             if password_hash_to_db == all_data_one_user["password"]:
-                return f"Password is OK"
+                jwtmaker = JwtWorker()
+                user_jwt = jwtmaker.generate_jwt(login)
+                return {"status": "OK", "jwt": user_jwt}
             else:
                 return f"Bad password"
+
+class JwtWorker:
+    def generate_jwt(self, login):
+        payload_data = {"name": login}
+        token = jwt.encode(payload_data, key, algorithm="HS256")
+        return token
+
+    def decode_jwt(self, input_jwt):
+        decoded_jwt = jwt.decode(input_jwt, key, algorithms="HS256")
+        return decoded_jwt
